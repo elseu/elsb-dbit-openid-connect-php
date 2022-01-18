@@ -1,11 +1,11 @@
 {
-    "name": "elseu/dbit-openid-connect-php",
+    "name": "dbit/openid-connect-php",
     "description": "Bare-bones OpenID Connect client",
     "license": "Apache-2.0",
     "authors": [
         {
             "name": "H. Paúl Cervera García",
-            "email": "hp.cerveragarcia@dbit.lu",
+            "email": "hp.cerveragarcia@dbit.lu"
         }
     ],
     "require": {
