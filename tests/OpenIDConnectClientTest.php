@@ -1,7 +1,7 @@
 <?php
 
-use Jumbojett\OpenIDConnectClient;
-use Jumbojett\OpenIDConnectClientException;
+use OpenIDConnect\OpenIDConnectClient;
+use OpenIDConnect\OpenIDConnectClientException;
 
 class OpenIDConnectClientTest extends PHPUnit_Framework_TestCase
 {

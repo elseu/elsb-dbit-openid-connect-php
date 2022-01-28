@@ -20,7 +20,9 @@
  *
  */
 
-namespace Jumbojett;
+namespace OpenIDConnect;
+
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  *
@@ -83,7 +85,7 @@ if (!function_exists('json_decode')) {
 
 /**
  *
- * Please note this class stores nonces by default in $_SESSION['openid_connect_nonce']
+ * Please note this class stores nonces by default in session['openid_connect_nonce']
  *
  */
 class OpenIDConnectClient
@@ -242,14 +244,17 @@ class OpenIDConnectClient
      */
     private $pkceAlgs = array('S256' => 'sha256', 'plain' => false);
 
+    private SessionInterface $session;
+
     /**
+     * @param SessionInterface $session
      * @param $provider_url string optional
      *
      * @param $client_id string optional
      * @param $client_secret string optional
      * @param null $issuer
      */
-    public function __construct($provider_url = null, $client_id = null, $client_secret = null, $issuer = null) {
+    public function __construct(SessionInterface $session, $provider_url = null, $client_id = null, $client_secret = null, $issuer = null) {
         $this->setProviderURL($provider_url);
         if ($issuer === null) {
             $this->setIssuer($provider_url);
@@ -263,6 +268,8 @@ class OpenIDConnectClient
         $this->issuerValidator = function($iss){
 	        return ($iss === $this->getIssuer() || $iss === $this->getWellKnownIssuer() || $iss === $this->getWellKnownIssuer(true));
         };
+
+        $this->session = $session;
     }
 
     /**
@@ -1789,36 +1796,27 @@ class OpenIDConnectClient
      * Use session to manage a nonce
      */
     protected function startSession() {
-        if (!isset($_SESSION)) {
-            @session_start();
-        }
+        $this->session->start();
     }
 
     protected function commitSession() {
         $this->startSession();
-
-        session_write_close();
+        $this->session->save();
     }
 
     protected function getSessionKey($key) {
         $this->startSession();
-
-        if (array_key_exists($key, $_SESSION)) {
-            return $_SESSION[$key];
-        }
-        return false;
+        return $this->session->get($key, false);
     }
 
     protected function setSessionKey($key, $value) {
         $this->startSession();
-
-        $_SESSION[$key] = $value;
+        $this->session->set($key, $value);
     }
 
     protected function unsetSessionKey($key) {
         $this->startSession();
-
-        unset($_SESSION[$key]);
+        $this->session->remove($key);
     }
 
     public function setUrlEncoding($curEncoding)
