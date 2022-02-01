@@ -349,8 +349,8 @@ class OpenIDConnectClient
             }
 
             // Do an OpenID Connect session check
-            $state = $this->reloadStateFromResponse();
-            if ($_REQUEST['state'] !== $state->getSignature()) {
+            $this->reloadStateFromResponse();
+            if ($_REQUEST['state'] !== $this->getStateFromSession()) {
                 throw new OpenIDConnectClientException('Unable to determine state');
             }
 
@@ -416,8 +416,8 @@ class OpenIDConnectClient
             }
 
             // Do an OpenID Connect session check
-            $state = $this->reloadStateFromResponse();
-            if ($_REQUEST['state'] !== $state->getSignature()) {
+            $this->reloadStateFromResponse();
+            if ($_REQUEST['state'] !== $this->getStateFromSession()) {
                 throw new OpenIDConnectClientException('Unable to determine state');
             }
 
@@ -712,7 +712,7 @@ class OpenIDConnectClient
         $nonce = $this->setNonce($this->generateRandString());
 
         // State essentially acts as a session key for OIDC
-        $state = $this->setState($this->buildEncodedState());
+        $state = $this->setStateInSession($this->buildEncodedState());
 
         $auth_params = array_merge($this->authParams, array(
             'response_type' => $response_type,
@@ -1806,19 +1806,20 @@ class OpenIDConnectClient
         return new State($stateSignature, $state);
     }
 
-    private function reloadStateFromResponse(): State
+    private function reloadStateFromResponse(): void
     {
-        $encodedState = $this->getState();
-        $state = $this->decodeState($encodedState);
+        $state = $this->decodeStateFromSession();
 
         if(false === empty($state->getAdditionalState())) {
             $this->setAdditionalState($state->getAdditionalState());
         }
-
-        return $state;
     }
 
-
+    private function decodeStateFromSession(): State
+    {
+        $encodedState = $this->getStateFromSession();
+        return $this->decodeState($encodedState);
+    }
 
     /**
      * Stores $state
@@ -1826,7 +1827,7 @@ class OpenIDConnectClient
      * @param string $state
      * @return string
      */
-    protected function setState($state)
+    protected function setStateInSession($state)
     {
         $this->setSessionKey('openid_connect_state', $state);
         return $state;
@@ -1837,7 +1838,7 @@ class OpenIDConnectClient
      *
      * @return string
      */
-    protected function getState()
+    protected function getStateFromSession()
     {
         return $this->getSessionKey('openid_connect_state');
     }
