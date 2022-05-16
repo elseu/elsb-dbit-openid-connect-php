@@ -331,7 +331,7 @@ class OpenIDConnectClient
         // Do a preemptive check to see if the provider has thrown an error from a previous redirect
         if (isset($_REQUEST['error'])) {
             $desc = isset($_REQUEST['error_description']) ? ' Description: ' . $_REQUEST['error_description'] : '';
-            $this->reloadStateFromResponse();
+            $this->reloadStateFromSession();
             throw new OpenIDConnectClientException('Error: ' . $_REQUEST['error'] . $desc);
         }
 
@@ -350,7 +350,7 @@ class OpenIDConnectClient
             }
 
             // Do an OpenID Connect session check
-            $this->reloadStateFromResponse();
+            $this->reloadStateFromSession();
             if ($_REQUEST['state'] !== $this->getStateFromSession()) {
                 throw new OpenIDConnectClientException('Unable to determine state');
             }
@@ -417,7 +417,7 @@ class OpenIDConnectClient
             }
 
             // Do an OpenID Connect session check
-            $this->reloadStateFromResponse();
+            $this->reloadStateFromSession();
             if ($_REQUEST['state'] !== $this->getStateFromSession()) {
                 throw new OpenIDConnectClientException('Unable to determine state');
             }
@@ -1768,6 +1768,22 @@ class OpenIDConnectClient
         return $this->getSessionKey('openid_connect_nonce');
     }
 
+    public function getAdditionalStateFromResponse(): array
+    {
+        $rawState = $_REQUEST['state'] ?? [];
+        if(empty($rawState)) {
+            return [];
+        }
+
+        try{
+            $state = $this->decodeState($rawState);
+        }catch (InvalidStateException $e) {
+            return [];
+        }
+
+        return $state->getAdditionalState();
+    }
+
     /**
      * Cleanup nonce
      *
@@ -1809,7 +1825,7 @@ class OpenIDConnectClient
         return new State($stateSignature, $state);
     }
 
-    private function reloadStateFromResponse(): void
+    private function reloadStateFromSession(): void
     {
         $state = $this->decodeStateFromSession();
 
