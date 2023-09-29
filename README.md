@@ -3,6 +3,13 @@ PHP OpenID Connect Basic Client
 This project is a fork from https://github.com/jumbojett/OpenID-Connect-PHP.
 The motivation was the need for Symfony's SessionInterface instead of native session handling.
 
+### Fork overrides ###
+```src/OpenIDConnectClient.php::fetchUrl``` => add default User-Agent for WAF
+```
+// Add default user agent
+$headers[] = "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36";
+```
+
 # Original project's Readme
 
 A simple library that allows an application to authenticate a user through the basic OpenID Connect flow.
