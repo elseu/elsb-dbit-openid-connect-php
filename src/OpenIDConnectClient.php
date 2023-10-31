@@ -1280,10 +1280,9 @@ class OpenIDConnectClient
 
         }
 
+        $headers[] = "User-Agent: OpenIDConnect client";
         // If we set some headers include them
-        if (count($headers) > 0) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // Set URL to download
         curl_setopt($ch, CURLOPT_URL, $url);
