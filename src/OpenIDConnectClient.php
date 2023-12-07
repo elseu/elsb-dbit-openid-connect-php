@@ -1280,7 +1280,7 @@ class OpenIDConnectClient
 
         }
 
-        $headers[] = "User-Agent: OpenIDConnect client";
+        $headers[] = "User-Agent: DBiTCurler";
         // If we set some headers include them
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
