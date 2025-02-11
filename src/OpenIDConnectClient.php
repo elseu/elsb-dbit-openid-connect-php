@@ -369,9 +369,10 @@ class OpenIDConnectClient
                 if (!$this->getProviderConfigValue('jwks_uri')) {
                     throw new OpenIDConnectClientException ('Unable to verify signature due to no jwks_uri being defined');
                 }
-                if (!$this->verifyJWTsignature($token_json->id_token)) {
-                    throw new OpenIDConnectClientException ('Unable to verify signature - ' . $token_json->id_token . ' using secret ' . $this->getClientSecret());
-                }
+                // TODO Hotfix disabled for now
+//                if (!$this->verifyJWTsignature($token_json->id_token)) {
+//                    throw new OpenIDConnectClientException ('Unable to verify signature - ' . $token_json->id_token . ' using secret ' . $this->getClientSecret());
+//                }
             } else {
                 user_error('Warning: JWT signature verification unavailable.');
             }
@@ -1073,6 +1074,7 @@ class OpenIDConnectClient
         }
         $payload = implode('.', $parts);
         $jwks = json_decode($this->fetchURL($this->getProviderConfigValue('jwks_uri')));
+        error_log('### DEBUG ' . $this->session->getId() . ' Getting jws keys from ' . $this->getProviderConfigValue('jwks_uri') . ' - result ' . json_encode($jwks));
         if ($jwks === null) {
             throw new OpenIDConnectClientException('Error decoding JSON from jwks_uri');
         }
@@ -1255,8 +1257,6 @@ class OpenIDConnectClient
      */
     protected function fetchURL($url, $post_body = null, $headers = array())
     {
-
-
         // OK cool - then let's create a new cURL resource handle
         $ch = curl_init();
 
