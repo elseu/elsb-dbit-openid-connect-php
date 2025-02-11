@@ -1074,7 +1074,6 @@ class OpenIDConnectClient
         }
         $payload = implode('.', $parts);
         $jwks = json_decode($this->fetchURL($this->getProviderConfigValue('jwks_uri')));
-        error_log('### DEBUG ' . $this->session->getId() . ' Getting jws keys from ' . $this->getProviderConfigValue('jwks_uri') . ' - result ' . json_encode($jwks));
         if ($jwks === null) {
             throw new OpenIDConnectClientException('Error decoding JSON from jwks_uri');
         }
@@ -1810,12 +1809,12 @@ class OpenIDConnectClient
     {
         $decoded = base64_decode($encodedState);
         if(false === is_string($decoded)) {
-            throw new InvalidStateException('Invalid state');
+            throw new InvalidStateException(sprintf('Invalid state: %s', $encodedState));
         }
 
         $state = json_decode($decoded, true);
         if(empty($state) || false === is_array($state) || empty($state[OpenIdConnectClientConstants::STATE_SIGNATURE])) {
-            throw new InvalidStateException(sprintf('Invalid state %s', $decoded));
+            throw new InvalidStateException(sprintf('Invalid state (decoded): %s', $decoded));
         }
 
         $stateSignature = $state[OpenIdConnectClientConstants::STATE_SIGNATURE];
