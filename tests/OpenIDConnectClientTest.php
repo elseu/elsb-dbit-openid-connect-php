@@ -2,15 +2,18 @@
 
 use OpenIDConnect\OpenIDConnectClient;
 use OpenIDConnect\OpenIDConnectClientException;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class OpenIDConnectClientTest extends PHPUnit_Framework_TestCase
+class OpenIDConnectClientTest extends TestCase
 {
     /**
      * @return void
      */
     public function testGetRedirectURL()
     {
-        $client = new OpenIDConnectClient();
+        $session = $this->createMock(SessionInterface::class);
+        $client = new OpenIDConnectClient($session);
 
         self::assertSame('http:///', $client->getRedirectURL());
 
@@ -31,7 +34,11 @@ class OpenIDConnectClientTest extends PHPUnit_Framework_TestCase
         $_SESSION['openid_connect_state'] = false;
 
         /** @var OpenIDConnectClient | PHPUnit_Framework_MockObject_MockObject $client */
-        $client = $this->getMockBuilder(OpenIDConnectClient::class)->setMethods(['decodeJWT', 'getProviderConfigValue', 'verifyJWTsignature'])->getMock();
+        $session = $this->createMock(SessionInterface::class);
+        $client = $this->getMockBuilder(OpenIDConnectClient::class)
+            ->setConstructorArgs([$session])
+            ->onlyMethods(['decodeJWT', 'getProviderConfigValue', 'verifyJWTsignature'])
+            ->getMock();
         $client->method('decodeJWT')->willReturn($fakeClaims);
         $client->method('getProviderConfigValue')->with('jwks_uri')->willReturn(true);
         $client->method('verifyJWTsignature')->willReturn(true);
