@@ -365,10 +365,9 @@ class OpenIDConnectClient
                 if (!$this->getProviderConfigValue('jwks_uri')) {
                     throw new OpenIDConnectClientException ('Unable to verify signature due to no jwks_uri being defined');
                 }
-                // TODO Hotfix disabled for now
-//                if (!$this->verifyJWTsignature($token_json->id_token)) {
-//                    throw new OpenIDConnectClientException ('Unable to verify signature - ' . $token_json->id_token . ' using secret ' . $this->getClientSecret());
-//                }
+                if (!$this->verifyJWTsignature($token_json->id_token)) {
+                    throw new OpenIDConnectClientException ('Unable to verify signature - ' . $token_json->id_token . ' using secret ' . $this->getClientSecret());
+                }
             } else {
                 user_error('Warning: JWT signature verification unavailable.');
             }
